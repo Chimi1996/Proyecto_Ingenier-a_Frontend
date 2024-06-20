@@ -4,10 +4,16 @@
 
       <div class="component">
         <div class="overlap-group">
+          <div class="circle-button-left" @click="goToLoginPage">
+            <span class="arrow-left">&#8592;</span>
+          </div>
           <div class="form-reserve"></div>
           <div class="element-input-field-with">
             <input class="field" placeholder="Placeholder" :type="inputType" />
             <div class="circle-button" @click="getLocation"></div>
+          </div>
+          <div class="circle-button-right" @click="goToDriverMapPage">
+            <span class="arrow-right">&#8594;</span>
           </div>
         </div>
       </div>
@@ -17,8 +23,6 @@
 
     <section id="map"></section>
   </div>
-
-
 </template>
 
 
@@ -88,7 +92,14 @@ export default {
         position: new google.maps.LatLng(latitude,longitude),
         map: map
       })
-
+    },
+    goToLoginPage() {
+      // Redirigir a la página LoginPage
+      this.$router.push('/');
+    },
+    goToDriverMapPage() {
+      // Redirigir a la página DriverMapPage
+      this.$router.push('/DriverMapPage');
     }
 
   }
@@ -103,7 +114,7 @@ export default {
     right: 0;
     bottom: 0;
     left: 0;
-    background:  red
+    background:  white
   }
 
   :root {
@@ -184,6 +195,46 @@ export default {
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+
+.circle-button-left {
+  position: absolute;
+  left: -50px; /* Ajusta según tu diseño */
+  top: 50%;
+  transform: translateY(74%);
+  width: 40px;
+  height: 40px;
+  background-color: #34a853;
+  border-radius: 50%;
+  box-shadow: var(--button-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2; /* Asegura que esté por encima de otros elementos */
+}
+
+.circle-button-right {
+  position: absolute;
+  right: -82px; /* Ajusta según tu diseño */
+  top: 50%;
+  transform: translateY(74%);
+  width: 40px;
+  height: 40px;
+  background-color: #34a853;
+  border-radius: 50%;
+  box-shadow: var(--button-shadow);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2; /* Asegura que esté por encima de otros elementos */
+}
+
+.circle-button-left .arrow-left,
+.circle-button-right .arrow-right {
+  color: #ffffff;
+  font-size: 20px;
 }
 
 </style>
