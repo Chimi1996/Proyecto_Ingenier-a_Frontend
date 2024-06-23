@@ -1,19 +1,48 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
+
+import DriverMapPage from '@/pages/DriverMapPage'
+import LoginPage from '@/pages/LoginPage'
+import RegisterDriverPage from '@/pages/RegisterDriverPage'
+import RegisterPhonePage from '@/pages/RegisterPhonePage'
+import RegisterUserPage from '@/pages/RegisterUserPage'
+import RegisterVehicle from '@/pages/RegisterVehicle'
+import UserMapPage from '@/pages/UserMapPage'
 
 const routes = [
   {
     path: '/',
-    name: 'home',
-    component: HomeView
+    name: 'LoginPage',
+    component: LoginPage
   },
   {
-    path: '/about',
-    name: 'about',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/AboutView.vue')
+    path: '/DriverMapPage',
+    name: 'DriverMapPage',
+    component: DriverMapPage
+  },
+  {
+    path: '/RegisterDriverPage',
+    name: 'RegisterDriverPage',
+    component: RegisterDriverPage
+  },
+  {
+    path: '/RegisterPhonePage',
+    name: 'RegisterPhonePage',
+    component: RegisterPhonePage
+  },
+  {
+    path: '/RegisterUserPage',
+    name: 'RegisterUserPage',
+    component: RegisterUserPage
+  },
+  {
+    path: '/RegisterVehicle',
+    name: 'RegisterVehicle',
+    component: RegisterVehicle
+  },
+  {
+    path: '/UserMapPage',
+    name: 'UserMapPage',
+    component: UserMapPage
   }
 ]
 
