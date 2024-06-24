@@ -1,40 +1,50 @@
 <template>
   <div class="home">
-    <div class="form-reserve5">
-      <div class="content">
-        <div class="copy">
-          <div class="header">
-            <div class="back-button" @click="goToLoginPage">
-              <span class="arrow-left">&#8592;</span>
-            </div>
-            <div class="text-wrapper-5">Lista de Viajes Disponibles</div>
-            <div class="right-button" @click="navigateToUserMapPage"></div>
-          </div>
-        </div>
+    <div class="map-container">
+      <section class="map">
+        <MapComponent />
+      </section>
 
-        <div class="trip-list">
-          <div
-            v-for="(trip, index) in trips"
-            :key="index"
-            class="trip-item"
-            @click="calcularRuta(trip)"
-          >
-            <div class="trip-info">
-              <div><span class="info-label">Nombre:</span> {{ trip.name }}</div>
-              <div><span class="info-label">Inicio:</span> {{ trip.start }}</div>
-              <div><span class="info-label">Destino:</span> {{ trip.destination }}</div>
-              <div><span class="info-label">Precio:</span> {{ trip.price }}</div>
+      <div class="form-reserve5">
+        <div class="content">
+          <div class="copy">
+            <div class="header">
+              <div class="back-button" @click="goToLoginPage">
+                <span class="arrow-left">&#8592;</span>
+              </div>
+              <div class="text-wrapper-5">Lista de Viajes Disponibles</div>
+              <div class="right-button" @click="navigateToUserMapPage"></div>
             </div>
           </div>
-        </div>
 
+          <div class="trip-list">
+            <div
+              v-for="(trip, index) in trips"
+              :key="index"
+              class="trip-item"
+              @click="calcularRuta(trip)"
+            >
+              <div class="trip-info">
+                <div><span class="info-label">Nombre:</span> {{ trip.name }}</div>
+                <div><span class="info-label">Inicio:</span> {{ trip.start }}</div>
+                <div><span class="info-label">Destino:</span> {{ trip.destination }}</div>
+                <div><span class="info-label">Precio:</span> {{ trip.price }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import MapComponent from '@/components/MapComponent.vue';
+
 export default {
+  components: {
+    MapComponent
+  },
   data() {
     return {
       trips: [
@@ -62,27 +72,51 @@ export default {
 </script>
 
 <style scoped>
+:root {
+  --button-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  --body-text-font-family: Arial, sans-serif;
+  --body-text-font-size: 14px;
+  --body-text-font-style: normal;
+  --body-text-font-weight: 400;
+  --body-text-letter-spacing: normal;
+  --body-text-line-height: 1.5;
+}
+
 .home {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #ffffff;
-  min-height: 100vh;
-  padding: 20px;
-  box-sizing: border-box;
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
+
+.map-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
+
+.map {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
 }
 
 .form-reserve5 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   -webkit-backdrop-filter: blur(4px) brightness(100%);
   backdrop-filter: blur(4px) brightness(100%);
-  background-color: #ffffff1a;
+  background-color: rgba(255, 255, 255, 0.8); /* Less transparent */
   border-radius: 33.34px;
-  box-shadow: 0px 4px 4px #00000040, inset 0px 4px 4px #00000040;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25), inset 0px 4px 4px rgba(0, 0, 0, 0.25);
   width: 100%;
   max-width: 400px;
   padding: 40px;
-  opacity: 0.9;
-  margin-top: 0px; /* Ajusta este valor para mover el contenido hacia arriba */
+  z-index: 2;
 }
 
 .content {
@@ -119,6 +153,7 @@ export default {
   width: 40px;
   height: 40px;
   cursor: pointer;
+  box-shadow: var(--button-shadow); /* Ensure buttons have shadow */
 }
 
 .arrow-left {
@@ -143,6 +178,7 @@ export default {
   width: 40px;
   height: 40px;
   cursor: pointer;
+  box-shadow: var(--button-shadow); /* Ensure buttons have shadow */
 }
 
 .trip-list {
@@ -171,7 +207,7 @@ export default {
 }
 
 @media (max-width: 768px) {
-  .form-reserve {
+  .form-reserve5 {
     width: 90%;
     padding: 20px;
   }

@@ -1,23 +1,56 @@
 <template>
   <div>
-    <section style="position: relative; z-index: 1;">
-      <div class="component">
-        <div class="overlap-group">
-          <div class="circle-button-left" @click="goToLoginPage">
-            <span class="arrow-left">&#8592;</span>
-          </div>
-          <div class="form-reserve"></div>
-          <div class="element-input-field-with">
-            <input class="field" placeholder="Ingrese su direccion" v-model="address" id="autocomplete"/>
-            <div class="circle-button1" @click="getLocation"></div>
-          </div>
-          <div class="circle-button-right" @click="goToDriverMapPage">
-            <span class="arrow-right">&#8594;</span>
+    <div class="map-container">
+      <section class="search-bar">
+        <div class="component">
+          <div class="overlap-group">
+            <div class="circle-button-left" @click="goToLoginPage">
+              <span class="arrow-left">&#8592;</span>
+            </div>
+            <div class="form-reserve"></div>
+            <div class="element-input-field-with">
+              <input class="field" placeholder="Ingrese su dirección" v-model="address" id="autocomplete"/>
+              <input class="field" placeholder="Destino" v-model="destination"/>
+              <div class="buttons-container">
+                <button class="action-button" @click="getLocation">Obtener Posición Actual</button>
+                <button 
+                  class="action-button" 
+                  :disabled="!address || !destination"
+                  @click="openModal"
+                  @mouseover="toggleTooltip(true)"
+                  @mouseleave="toggleTooltip(false)">
+                  Iniciar Viaje
+                </button>
+                <span v-if="tooltipVisible" class="tooltip">Seleccionar Ruta</span>
+              </div>
+            </div>
+            <div class="circle-button-right" @click="goToDriverMapPage">
+              <span class="arrow-right">&#8594;</span>
+            </div>
           </div>
         </div>
+      </section>
+
+      <section class="map">
+        <MapComponent 
+          :markerPosition="markerPosition" 
+          :center="mapCenter" 
+          :destinationMarkerPosition="destinationMarkerPosition"
+          :directions="directions"
+          @map-click="handleMapClick"
+        />
+      </section>
+
+      <!-- Modal -->
+      <div v-if="isModalVisible" class="modal-overlay" @click="closeModal">
+        <div class="modal-content" @click.stop>
+          <h2>Buscando conductor</h2>
+          <p><span class="modal-label">Inicio:</span> {{ address }}</p>
+          <p><span class="modal-label">Destino:</span> {{ destination }}</p>
+          <div class="loading-spinner"></div>
+        </div>
       </div>
-    </section>
-    <section id="map"></section>
+    </div>
   </div>
 </template>
 
@@ -25,14 +58,23 @@
 /* google */
 /* eslint-disable */
 import axios from 'axios';
+import MapComponent from '@/components/MapComponent.vue';
 
 export default {
   name: "UserMapPage",
+  components: {
+    MapComponent,
+  },
   data() {
     return {
       address: "",
-      map: null,
-      autocomplete: null,
+      destination: "",
+      markerPosition: null,
+      destinationMarkerPosition: null,
+      mapCenter: { lat: 10.6346, lng: -85.4400 },
+      tooltipVisible: false,
+      directions: null,
+      isModalVisible: false,
     }
   },
 
@@ -43,14 +85,12 @@ export default {
   },
 
   methods: {
-    
-
     getLocation() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           position => {
             this.getAddressFrom(position.coords.latitude, position.coords.longitude);
-            //this.showUserLocationOnTheMap(position.coords.latitude, position.coords.longitude);
+            this.showUserLocationOnTheMap(position.coords.latitude, position.coords.longitude);
           },
           error => {
             console.log(error.message);
@@ -75,17 +115,70 @@ export default {
         });
     },
 
-    showUserLocationOnTheMap(latitude, longitude) {
-      /*let map = new google.maps.Map(document.getElementById("map"),{
-        zoom:15,
-        center: new goolge.maps.LatLng(latitude, longitude),
-        mapTypeId:google.maps.mapTypeId.ROADMAP
-      })
+    getDestinationAddressFrom(lat, long) {
+      axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&key=AIzaSyDKD3Hnr_ZjJ0zxWwvqE_Dkz_pu3Q4hQJs`)
+        .then(response => {
+          if (response.data.error_message) {
+            console.log(response.data.error_message);
+          } else {
+            this.destination = response.data.results[0].formatted_address;
+            console.log(response.data.results[0].formatted_address);
+            this.calculateRoute();
+          }
+        }).catch(error => {
+          console.log(error.message);
+        });
+    },
 
-      new google.maps.Marker({
-        position: new google.maps.LatLng(latitude, longitude),
-        map:map
-      })*/
+    showUserLocationOnTheMap(latitude, longitude) {
+      this.markerPosition = { lat: latitude, lng: longitude };
+      this.mapCenter = { lat: latitude, lng: longitude };
+      if (this.destinationMarkerPosition) {
+        this.calculateRoute();
+      }
+    },
+
+    handleMapClick({ lat, lng }) {
+      console.log("Destination coordinates:", { lat, lng });
+      this.destinationMarkerPosition = { lat, lng };
+      this.getDestinationAddressFrom(lat, lng);
+    },
+
+    calculateRoute() {
+      if (this.markerPosition && this.destinationMarkerPosition) {
+        const directionsService = new google.maps.DirectionsService();
+        directionsService.route(
+          {
+            origin: this.markerPosition,
+            destination: this.destinationMarkerPosition,
+            travelMode: google.maps.TravelMode.DRIVING,
+          },
+          (response, status) => {
+            if (status === google.maps.DirectionsStatus.OK) {
+              this.directions = response;
+            } else {
+              console.log("Directions request failed due to " + status);
+            }
+          }
+        );
+      }
+    },
+
+    startJourney() {
+      // Lógica para iniciar el viaje
+      console.log("Iniciando viaje de", this.address, "a", this.destination);
+    },
+
+    toggleTooltip(visible) {
+      this.tooltipVisible = visible;
+    },
+
+    openModal() {
+      this.isModalVisible = true;
+    },
+
+    closeModal() {
+      this.isModalVisible = false;
     },
 
     goToLoginPage() {
@@ -99,16 +192,7 @@ export default {
 };
 </script>
 
-<style>
-#map {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  background: #ffffff;
-}
-
+<style scoped>
 :root {
   --button-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
   --body-text-font-family: Arial, sans-serif;
@@ -119,21 +203,44 @@ export default {
   --body-text-line-height: 1.5;
 }
 
+.map-container {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+}
+
+.search-bar {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  padding: 10px;
+  border-radius: 8px;
+  width: calc(100% - 20px); /* Ensure it takes almost full width with some margin */
+  max-width: 600px; /* Set a max-width to prevent it from being too wide */
+}
+
+.map {
+  width: 100%;
+  height: 100%;
+}
+
 .component {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  height: 100vh;
-  padding-top: 20px;
+  align-items: center;
+  height: auto;
 }
 
 .overlap-group {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.9);
   display: flex;
   justify-content: center;
   align-items: center;
   border-radius: 33.34px;
   width: 100%;
-  max-width: 487px;
   position: relative;
 }
 
@@ -143,25 +250,14 @@ export default {
   background-color: #ffffff1a;
   border-radius: 33.34px;
   box-shadow: 0px 4px 4px #00000040, inset 0px 4px 4px #00000040;
-  height: 99px;
+  padding: 16px;
   width: 100%;
   opacity: 0.9;
-  position: absolute;
-  top: 0;
-  left: 0;
   display: flex;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-}
-
-.element-input-field-with {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  width: 100%;
-  max-width: 487px;
-  padding: 0 16px;
+  gap: 8px;
 }
 
 .field {
@@ -172,28 +268,58 @@ export default {
   color: #828282;
   font-family: var(--body-text-font-family);
   font-size: var(--body-text-font-size);
-  padding: 16px;
-  flex-grow: 1;
-  min-width: 0;
+  padding: 10px;
+  width: 100%;
 }
 
-.circle-button1 {
-  width: 40px;
-  height: 40px;
-  background-color: #34a853;
-  border-radius: 50%;
-  box-shadow: var(--button-shadow);
+.buttons-container {
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.action-button {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  background-color: #34a853;
+  color: white;
   cursor: pointer;
+  box-shadow: var(--button-shadow);
+  font-family: var(--body-text-font-family);
+  font-size: var(--body-text-font-size);
+}
+
+.action-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.tooltip {
+  background-color: black;
+  color: white;
+  border-radius: 4px;
+  padding: 4px 8px;
+  position: absolute;
+  top: -24px;
+  left: 50%;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-size: 12px;
+  z-index: 10;
+}
+
+.circle-button1 {
+  display: none; /* Hidden as it's not used anymore */
 }
 
 .circle-button-left {
   position: absolute;
   left: -50px;
   top: 50%;
-  transform: translateY(74%);
+  transform: translateY(-50%);
   width: 40px;
   height: 40px;
   background-color: #34a853;
@@ -208,9 +334,9 @@ export default {
 
 .circle-button-right {
   position: absolute;
-  right: -82px;
+  right: -50px;
   top: 50%;
-  transform: translateY(74%);
+  transform: translateY(-50%);
   width: 40px;
   height: 40px;
   background-color: #34a853;
@@ -227,5 +353,52 @@ export default {
 .circle-button-right .arrow-right {
   color: #ffffff;
   font-size: 20px;
+}
+
+/* Estilos para el modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 20;
+}
+
+.modal-content {
+  background: rgba(255, 255, 255, 0.9);
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: var(--button-shadow);
+  text-align: center;
+  position: relative;
+}
+
+.modal-label {
+  color: #34a853;
+  font-weight: bold;
+}
+
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-left-color: #34a853;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  margin: 20px auto;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 </style>

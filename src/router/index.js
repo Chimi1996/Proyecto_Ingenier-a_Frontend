@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 import DriverMapPage from '@/pages/DriverMapPage'
 import LoginPage from '@/pages/LoginPage'
-import RegisterDriverPage from '@/pages/RegisterDriverPage'
+import MapComponent from '@/components/MapComponent'
 import RegisterPhonePage from '@/pages/RegisterPhonePage'
 import RegisterUserPage from '@/pages/RegisterUserPage'
 import RegisterVehicle from '@/pages/RegisterVehicle'
@@ -20,9 +20,9 @@ const routes = [
     component: DriverMapPage
   },
   {
-    path: '/RegisterDriverPage',
-    name: 'RegisterDriverPage',
-    component: RegisterDriverPage
+    path: '/MapComponent',
+    name: 'MapComponent',
+    component: MapComponent
   },
   {
     path: '/RegisterPhonePage',
