@@ -13,11 +13,11 @@
         <div class="input-and-button">
           <div class="field">
             <select class="input-field" v-model="countryCode">
-              <option value="+506">Costa Rica (+506)</option>
-              <option value="+1">Estados Unidos (+1)</option>
-              <option value="+44">Reino Unido (+44)</option>
-              <option value="+33">Francia (+33)</option>
-              <option value="+49">Alemania (+49)</option>
+              <option value="506">Costa Rica (+506)</option>
+              <option value="1">Estados Unidos (+1)</option>
+              <option value="44">Reino Unido (+44)</option>
+              <option value="33">Francia (+33)</option>
+              <option value="49">Alemania (+49)</option>
               <!-- Agrega más opciones según sea necesario -->
             </select>
           </div>
@@ -33,7 +33,7 @@
             <span>{{ buttonText }}</span>
           </div>
         </div>
-        <div class="field">
+        <div class="field" v-if="isVerificationStep">
           <input
             type="text"
             class="input-field"
@@ -47,10 +47,12 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   data() {
     return {
-      countryCode: '+506', // Código de país por defecto para Costa Rica
+      countryCode: '506', // Código de país por defecto para Costa Rica
       phoneNumber: '',
       verificationCode: '',
       buttonText: 'Enviar Comprobante',
@@ -65,27 +67,43 @@ export default {
         this.sendVerificationCode();
       }
     },
-    sendVerificationCode() {
-      // Aquí puedes añadir la lógica para enviar el comprobante
-      console.log(`Enviando comprobante al número: ${this.countryCode} ${this.phoneNumber}`);
-      this.isVerificationStep = true;
-      this.buttonText = 'Verificar';
+    async sendVerificationCode() {
+      try {
+        const response = await axios.post('http://localhost:8000/api/sendSms', {
+          country_code: this.countryCode,
+          phone_number: this.phoneNumber
+        });
+        console.log('Código de verificación enviado con éxito:', response.data);
+        this.isVerificationStep = true;
+        this.buttonText = 'Verificar';
+      } catch (error) {
+        console.error('Error al enviar el código de verificación:', error.response.data);
+        alert('Error al enviar el código de verificación: ' + error.response.data.error);
+      }
     },
-    verifyCode() {
-      // Aquí puedes añadir la lógica para verificar el comprobante
-      console.log(`Verificando el comprobante: ${this.verificationCode}`);
-      // Navegar a RegisterUserPage después de la verificación
-      this.$router.push({ name: 'RegisterUserPage' });
+    async verifyCode() {
+      try {
+        const response = await axios.post('http://localhost:8000/api/verifycode', {
+          verification_code: this.verificationCode,
+          phone_number: this.phoneNumber
+        });
+        console.log('Código verificado correctamente:', response.data);
+        alert('Código verificado correctamente');
+        // Navegar a RegisterUserPage después de la verificación
+        this.$router.push({ name: 'RegisterUserPage' });
+      } catch (error) {
+        console.error('Error al verificar el código:', error.response.data);
+        alert('Error al verificar el código: ' + error.response.data.error);
+      }
     },
     goBack() {
-      // Aquí puedes añadir la lógica para volver a la página anterior
       console.log('Volver a la página anterior');
-      // Por ejemplo, si estás utilizando Vue Router:
       this.$router.go(-1);
     },
   },
 };
 </script>
+
 
 <style>
 .home {

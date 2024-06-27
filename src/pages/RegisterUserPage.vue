@@ -68,6 +68,9 @@
 </template>
 
 <script>
+/* eslint-disable */
+import axios from 'axios';
+
 export default {
   data() {
     return {
@@ -75,34 +78,43 @@ export default {
       middleName: '',
       lastName: '',
       secondLastName: '',
-      phoneNumber: '+50612345678', // Este debería ser el número ingresado en la vista anterior
+      phoneNumber: '+50612345679', // Este debería ser el número ingresado en la vista anterior
+      password: '123',
       userType: 'passenger', // Valor por defecto
     };
   },
   methods: {
-    handleSubmit() {
-      if (this.userType === 'passenger') {
-        this.registerUser();
-        this.$router.push({ name: 'UserMapPage' });
-      } else {
-        this.$router.push({ name: 'RegisterVehicle' });
+    async handleSubmit() {
+      if (!this.firstName || !this.lastName || !this.phoneNumber || !this.password || !this.userType) {
+        alert('Por favor, complete todos los campos requeridos.');
+        return;
+      }
+
+      try {
+        const response = await axios.post('http://localhost:8000/api/CrearUsuario', {
+          phone_number: this.phoneNumber,
+          first_name: this.firstName,
+          middle_name: this.middleName,
+          last_name: this.lastName,
+          second_last_name: this.secondLastName,
+          password: this.password,
+          user_type: this.userType,
+        });
+
+        alert('Usuario creado con éxito');
+
+        if (this.userType === 'passenger') {
+          this.$router.push({ name: 'UserMapPage' });
+        } else {
+          this.$router.push({ name: 'RegisterVehicle' });
+        }
+      } catch (error) {
+        console.error('Error al registrar el usuario:', error.response.data);
+        alert('Hubo un error al crear el usuario: ' + error.response.data.error);
       }
     },
-    registerUser() {
-      // Lógica para registrar al usuario
-      console.log('Registrando usuario:', {
-        firstName: this.firstName,
-        middleName: this.middleName,
-        lastName: this.lastName,
-        secondLastName: this.secondLastName,
-        phoneNumber: this.phoneNumber,
-        userType: this.userType,
-      });
-    },
+
     goBack() {
-      // Aquí puedes añadir la lógica para volver a la página anterior
-      console.log('Volver a la página anterior');
-      // Por ejemplo, si estás utilizando Vue Router:
       this.$router.go(-1);
     },
   },

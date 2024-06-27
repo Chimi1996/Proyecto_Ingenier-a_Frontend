@@ -47,6 +47,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   data() {
     return {
@@ -75,15 +77,25 @@ export default {
       // Por ejemplo, si estás utilizando Vue Router:
       this.$router.go(-1);
     },
-    handleSubmit() {
-      // Capturar los datos del vehículo
-      const newVehicle = { ...this.vehicle };
+    async handleSubmit() {
+      try {
+        //const id_driver = localStorage.getItem('id_User');
+        const response = await axios.post('http://localhost:8000/api/CrearVehiculo', {
+          license_plate: this.vehicle.license_plate,
+          id_driver: 'Nooo',
+          brand: this.vehicle.brand,
+          model: this.vehicle.model,
+          year: this.vehicle.year,
+          color: this.vehicle.color,
+        });
+        console.log('Respuesta del servidor:', response.data);
 
-      // Guardar los datos del vehículo para uso futuro (por ejemplo, en localStorage)
-      localStorage.setItem('savedVehicle', JSON.stringify(newVehicle));
-
-      // Navegar a la página UserMapPage (reemplaza con tu lógica de navegación real)
-      this.$router.push('/DriverMapPage');
+        // Redirecciona o muestra un mensaje de éxito
+        this.$router.push('/DriverMapPage');
+      } catch (error) {
+        console.error('Error al registrar el vehículo:', error);
+        // Maneja el error, muestra un mensaje al usuario, etc.
+      }
     }
   }
 };

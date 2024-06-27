@@ -16,7 +16,7 @@
                 <button 
                   class="action-button" 
                   :disabled="!address || !destination"
-                  @click="openModal"
+                  @click="createTrip"
                   @mouseover="toggleTooltip(true)"
                   @mouseleave="toggleTooltip(false)">
                   Iniciar Viaje
@@ -164,9 +164,26 @@ export default {
       }
     },
 
-    startJourney() {
-      // Lógica para iniciar el viaje
-      console.log("Iniciando viaje de", this.address, "a", this.destination);
+    async createTrip() {
+      const phoneNumber = localStorage.getItem('phoneNumber');
+      if (!phoneNumber) {
+        alert('No se ha encontrado el número de teléfono del usuario.');
+        return;
+      }
+
+      try {
+        const response = await axios.post('http://localhost:8000/api/CrearViaje', {
+          phone_number: phoneNumber,
+          start_point: this.address,
+          end_point: this.destination,
+        });
+
+        alert('Viaje creado con éxito');
+        this.openModal();
+      } catch (error) {
+        console.error('Error al crear el viaje:', error.response.data);
+        alert('Hubo un error al crear el viaje: ' + error.response.data.error);
+      }
     },
 
     toggleTooltip(visible) {
@@ -191,6 +208,7 @@ export default {
   }
 };
 </script>
+
 
 <style scoped>
 :root {

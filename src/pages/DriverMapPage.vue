@@ -25,10 +25,9 @@
               @click="calcularRuta(trip)"
             >
               <div class="trip-info">
-                <div><span class="info-label">Nombre:</span> {{ trip.name }}</div>
-                <div><span class="info-label">Inicio:</span> {{ trip.start }}</div>
-                <div><span class="info-label">Destino:</span> {{ trip.destination }}</div>
-                <div><span class="info-label">Precio:</span> {{ trip.price }}</div>
+                <div><span class="info-label">Inicio:</span> {{ trip.start_point }}</div>
+                <div><span class="info-label">Destino:</span> {{ trip.end_point }}</div>
+                <div><span class="info-label">Precio:</span> {{ trip.fare }}</div>
               </div>
             </div>
           </div>
@@ -39,6 +38,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import MapComponent from '@/components/MapComponent.vue';
 
 export default {
@@ -47,12 +47,7 @@ export default {
   },
   data() {
     return {
-      trips: [
-        { name: "Viaje a la playa", start: "San José", destination: "Jaco", price: "$50" },
-        { name: "Viaje de montaña", start: "San José", destination: "Volcán Arenal", price: "$80" },
-        { name: "Viaje cultural", start: "San José", destination: "Cartago", price: "$30" }
-        // Puedes añadir más objetos de viaje según sea necesario
-      ]
+      trips: [] // Inicializar como un array vacío
     };
   },
   methods: {
@@ -61,15 +56,27 @@ export default {
       // Aquí podrías implementar la lógica para calcular la ruta
     },
     goToLoginPage() {
-      this.$router.push('/')
+      this.$router.push('/');
     },
     navigateToUserMapPage() {
       // Lógica para navegar a UserMapPage
       this.$router.push({ name: 'UserMapPage' });
+    },
+    async fetchTrips() {
+      try {
+        const response = await axios.get('http://localhost:8000/api/ObtenerViajesEnEspera');
+        this.trips = response.data;
+      } catch (error) {
+        console.error('Error al obtener los viajes en espera:', error);
+      }
     }
+  },
+  mounted() {
+    this.fetchTrips(); // Llamar a fetchTrips cuando el componente se monte
   }
 };
 </script>
+
 
 <style scoped>
 :root {

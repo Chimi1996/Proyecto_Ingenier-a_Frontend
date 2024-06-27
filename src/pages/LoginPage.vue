@@ -35,6 +35,8 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: "LoginPage",
   data() {
@@ -43,21 +45,31 @@ export default {
     };
   },
   methods: {
-    login() {
-      // Lógica para el inicio de sesión (puede ser una verificación simple)
-      console.log("Número de teléfono ingresado:", this.phoneNumber);
-      // Redirigir a UserMapPage
-      this.$router.push({ name: 'UserMapPage' });
+    async login() {
+      try {
+        const response = await axios.post('http://localhost:8000/api/login', {
+          phone_number: this.phoneNumber
+        });
+
+        console.log('Inicio de sesión exitoso:', response.data);
+
+        localStorage.setItem('phoneNumber', this.phoneNumber);
+
+        // Redirigir a UserMapPage
+        this.$router.push({ name: 'UserMapPage' });
+      } catch (error) {
+        console.error('Error al iniciar sesión:', error.response.data);
+        alert('Error al iniciar sesión: ' + error.response.data.error);
+      }
     },
     register() {
-      // Lógica para el registro (puede ser una verificación simple)
       console.log("Registro de usuario");
-      // Redirigir a RegisterPhonePage
       this.$router.push({ name: 'RegisterPhonePage' });
     }
   }
 };
 </script>
+
 
 <style>
 .login-page {
