@@ -83,6 +83,10 @@ export default {
       userType: 'passenger', // Valor por defecto
     };
   },
+  mounted() {
+    // Recuperar el número de teléfono del almacenamiento local
+    this.phoneNumber = localStorage.getItem('phoneNumber') || '+50612345678';
+  },
   methods: {
     async handleSubmit() {
       if (!this.firstName || !this.lastName || !this.phoneNumber || !this.password || !this.userType) {
