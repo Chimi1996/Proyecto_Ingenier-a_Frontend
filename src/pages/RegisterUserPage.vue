@@ -78,10 +78,14 @@ export default {
       middleName: '',
       lastName: '',
       secondLastName: '',
-      phoneNumber: '+50612345679', // Este debería ser el número ingresado en la vista anterior
+      phoneNumber: '', // Este debería ser el número ingresado en la vista anterior
       password: '123',
       userType: 'passenger', // Valor por defecto
     };
+  },
+  mounted() {
+    // Recuperar el número de teléfono del almacenamiento local
+    this.phoneNumber = localStorage.getItem('phoneNumber') || '+50612345678';
   },
   methods: {
     async handleSubmit() {

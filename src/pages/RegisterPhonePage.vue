@@ -88,6 +88,7 @@ export default {
           phone_number: this.phoneNumber
         });
         console.log('Código verificado correctamente:', response.data);
+        localStorage.setItem('phoneNumber', this.phoneNumber);
         alert('Código verificado correctamente');
         // Navegar a RegisterUserPage después de la verificación
         this.$router.push({ name: 'RegisterUserPage' });
