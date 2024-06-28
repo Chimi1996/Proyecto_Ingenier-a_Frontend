@@ -19,10 +19,10 @@
 
           <div class="trip-list">
             <div
-              v-for="(trip, index) in trips"
+              v-for="(trip, index) in limitedTrips"
               :key="index"
               class="trip-item"
-              @click="calcularRuta(trip)"
+              @click="openModal(trip)"
             >
               <div class="trip-info">
                 <div><span class="info-label">Inicio:</span> {{ trip.start_point }}</div>
@@ -34,10 +34,22 @@
         </div>
       </div>
     </div>
+
+    <div v-if="showModal" class="modal-overlay" @click="closeModal">
+      <div class="modal-content" @click.stop>
+        <h2>¿Desea aceptar el viaje?</h2>
+        <p><span class="modal-label">Inicio:</span> {{ selectedTrip.start_point }}</p>
+        <p><span class="modal-label">Destino:</span> {{ selectedTrip.end_point }}</p>
+        <p><span class="modal-label">Precio:</span> {{ selectedTrip.fare }}</p>
+        <button @click="acceptTrip">Aceptar</button>
+        <button @click="closeModal">Cancelar</button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+/* eslint-disable */
 import axios from 'axios';
 import MapComponent from '@/components/MapComponent.vue';
 
@@ -47,10 +59,39 @@ export default {
   },
   data() {
     return {
-      trips: [] // Inicializar como un array vacío
+      trips: [], // Inicializar como un array vacío
+      showModal: false,
+      selectedTrip: null
     };
   },
+  computed: {
+    limitedTrips() {
+      return this.trips.slice(-3).reverse(); // Tomar los últimos 3 viajes y revertir el orden para mostrar los más recientes primero
+    }
+  },
   methods: {
+    openModal(trip) {
+      this.selectedTrip = trip;
+      this.showModal = true;
+    },
+    closeModal() {
+      this.showModal = false;
+      this.selectedTrip = null;
+    },
+    async acceptTrip() {
+      try {
+        const response = await axios.post('http://localhost:8000/api/acceptTrip', {
+          id_trip: this.selectedTrip.id,
+          id_driver: localStorage.getItem('driver_id') // Asume que el ID del conductor está almacenado en localStorage
+        });
+        alert('Viaje aceptado exitosamente');
+        this.closeModal();
+        this.fetchTrips(); // Actualiza la lista de viajes después de aceptar uno
+      } catch (error) {
+        console.error('Error al aceptar el viaje:', error.response.data);
+        alert('Hubo un error al aceptar el viaje: ' + error.response.data.error);
+      }
+    },
     calcularRuta(trip) {
       console.log("Calculando ruta para:", trip);
       // Aquí podrías implementar la lógica para calcular la ruta
@@ -76,7 +117,6 @@ export default {
   }
 };
 </script>
-
 
 <style scoped>
 :root {
@@ -211,6 +251,46 @@ export default {
 
 .info-label {
   font-weight: bold;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.modal-content h2 {
+  margin-bottom: 20px;
+}
+
+.modal-content button {
+  margin: 10px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #34a853;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.modal-content button:hover {
+  background-color: #2c8c47;
 }
 
 @media (max-width: 768px) {
