@@ -69,6 +69,7 @@ export default {
     for (let year = 2025; year >= 1700; year--) {
       this.years.push(year);
     }
+    this.phoneNumber = localStorage.getItem('phoneNumber') || '+50612345678';
   },
   methods: {
     goBack() {
@@ -77,12 +78,13 @@ export default {
       // Por ejemplo, si estás utilizando Vue Router:
       this.$router.go(-1);
     },
+
     async handleSubmit() {
       try {
         //const id_driver = localStorage.getItem('id_User');
         const response = await axios.post('http://localhost:8000/api/CrearVehiculo', {
           license_plate: this.vehicle.license_plate,
-          id_driver: 'Nooo',
+          phone_number: this.phoneNumber,
           brand: this.vehicle.brand,
           model: this.vehicle.model,
           year: this.vehicle.year,
