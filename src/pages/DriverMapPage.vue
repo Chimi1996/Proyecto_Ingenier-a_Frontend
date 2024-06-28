@@ -66,7 +66,10 @@ export default {
   },
   computed: {
     limitedTrips() {
-      return this.trips.slice(-3).reverse(); // Tomar los últimos 3 viajes y revertir el orden para mostrar los más recientes primero
+      if (Array.isArray(this.trips)) {
+        return this.trips.slice(-3).reverse(); // Tomar los últimos 3 viajes y revertir el orden para mostrar los más recientes primero
+      }
+      return [];
     }
   },
   methods: {
@@ -80,9 +83,10 @@ export default {
     },
     async acceptTrip() {
       try {
+        const phoneNumber = localStorage.getItem('phoneNumber');
         const response = await axios.post('http://localhost:8000/api/acceptTrip', {
-          id_trip: this.selectedTrip.id,
-          id_driver: localStorage.getItem('driver_id') // Asume que el ID del conductor está almacenado en localStorage
+          id_trip: this.selectedTrip.id_trip, // Asegúrate de que el campo coincide con el backend
+          phone_number: phoneNumber
         });
         alert('Viaje aceptado exitosamente');
         this.closeModal();
@@ -106,7 +110,11 @@ export default {
     async fetchTrips() {
       try {
         const response = await axios.get('http://localhost:8000/api/ObtenerViajesEnEspera');
-        this.trips = response.data;
+        if (Array.isArray(response.data)) {
+          this.trips = response.data;
+        } else {
+          console.error('La respuesta del servidor no es un array:', response.data);
+        }
       } catch (error) {
         console.error('Error al obtener los viajes en espera:', error);
       }
