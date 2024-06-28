@@ -5,7 +5,7 @@
         <div class="component">
           <div class="overlap-group">
             <div class="circle-button-left" @click="goToLoginPage">
-              <span class="arrow-left">&#8592;</span>
+              <img src="@/assets/Exit.png" alt="Exit" class="button-icon">
             </div>
             <div class="form-reserve"></div>
             <div class="element-input-field-with">
@@ -25,7 +25,7 @@
               </div>
             </div>
             <div class="circle-button-right" @click="goToDriverMapPage">
-              <span class="arrow-right">&#8594;</span>
+              <img src="@/assets/Car.png" alt="Exit" class="button-icon2">
             </div>
           </div>
         </div>
@@ -363,6 +363,16 @@ export default {
   font-size: var(--body-text-font-size);
   padding: 10px;
   width: 100%;
+}
+.button-icon {
+  width: 99px;
+  height: 99px;
+  margin-right: 0px;
+}
+.button-icon2 {
+  width: 25px;
+  height: 25px;
+  margin-right: 0px;
 }
 
 .buttons-container {

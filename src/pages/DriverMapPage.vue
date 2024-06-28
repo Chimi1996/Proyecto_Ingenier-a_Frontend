@@ -10,10 +10,12 @@
           <div class="copy">
             <div class="header">
               <div class="back-button" @click="goToLoginPage">
-                <span class="arrow-left">&#8592;</span>
+                <img src="@/assets/Exit.png" alt="Exit" class="button-icon">
               </div>
               <div class="text-wrapper-5">Lista de Viajes Disponibles</div>
-              <div class="right-button" @click="navigateToUserMapPage"></div>
+              <div class="right-button" @click="navigateToUserMapPage">
+                <img src="@/assets/Person.png" alt="Exit" class="button-icon2">
+              </div>
             </div>
           </div>
 
@@ -193,6 +195,17 @@ export default {
   position: relative;
   width: 100%;
   text-align: center;
+}
+
+.button-icon {
+  width: 99;
+  height: 99px;
+  margin-right: 0px;
+}
+.button-icon2 {
+  width: 25px;
+  height: 25px;
+  margin-top: 7px;
 }
 
 .back-button {
