@@ -50,12 +50,20 @@
           <div class="loading-spinner"></div>
         </div>
       </div>
+
+      <!-- Modal para no conductores -->
+      <div v-if="showDriverRestrictionModal" class="modal-overlay" @click="closeDriverRestrictionModal">
+        <div class="modal-content" @click.stop>
+          <h2>Apartado para Conductores</h2>
+          <p>¿Quieres volverte uno?</p>
+          <button @click="closeDriverRestrictionModal">Cerrar</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
-/* google */
 /* eslint-disable */
 import axios from 'axios';
 import MapComponent from '@/components/MapComponent.vue';
@@ -75,13 +83,8 @@ export default {
       tooltipVisible: false,
       directions: null,
       isModalVisible: false,
+      showDriverRestrictionModal: false,
     }
-  },
-
-  mounted() {
-    /*new google.map.places.Autocomplete(
-      document.getElementById("autocomplete")
-    )*/
   },
 
   methods: {
@@ -198,12 +201,35 @@ export default {
       this.isModalVisible = false;
     },
 
+    closeDriverRestrictionModal() {
+      this.showDriverRestrictionModal = false;
+    },
+
     goToLoginPage() {
       this.$router.push('/');
     },
 
-    goToDriverMapPage() {
-      this.$router.push('/DriverMapPage');
+    async goToDriverMapPage() {
+      const phoneNumber = localStorage.getItem('phoneNumber');
+      if (!phoneNumber) {
+        alert('No se ha encontrado el número de teléfono del usuario.');
+        return;
+      }
+
+      try {
+        const response = await axios.post('http://localhost:8000/api/ObtenerTipoDeUsuario', {
+          phone_number: phoneNumber
+        });
+
+        if (response.data === 'driver') {
+          this.$router.push('/DriverMapPage');
+        } else {
+          this.showDriverRestrictionModal = true;
+        }
+      } catch (error) {
+        console.error('Error al verificar el tipo de usuario:', error.response?.data || error);
+        alert('Hubo un error al verificar el tipo de usuario.');
+      }
     }
   }
 };
@@ -261,6 +287,55 @@ export default {
   width: 100%;
   position: relative;
 }
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+}
+
+.modal-content h2 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.modal-content p {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+.modal-content button {
+  background-color: #34a853;
+  color: #ffffff;
+  font-size: 16px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  margin: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.modal-content button:hover {
+  background-color: #2c8c47;
+}
+
 
 .element-input-field-with {
   -webkit-backdrop-filter: blur(4px) brightness(100%);
