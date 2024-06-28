@@ -78,7 +78,7 @@ export default {
       middleName: '',
       lastName: '',
       secondLastName: '',
-      phoneNumber: '', // Este debería ser el número ingresado en la vista anterior
+      phoneNumber: '84562894', // Este debería ser el número ingresado en la vista anterior
       password: '123',
       userType: 'passenger', // Valor por defecto
     };
